@@ -119,24 +119,31 @@ else
     sed -i 's|\.\./source/images/|\./images/|g' "$TMP_SLIDES_PATH"
 fi
 
+# Marpコマンドの決定（グローバルにある場合はそれを使用、なければnpx）
+if command -v marp &> /dev/null; then
+    MARP_CMD="marp"
+else
+    MARP_CMD="npx -y @marp-team/marp-cli@latest"
+fi
+
 # Marpを使用してスライドを変換
 case $FORMAT in
     pdf)
         echo "PDFに変換しています..."
-        npx @marp-team/marp-cli@latest "$TMP_SLIDES_PATH" --pdf --allow-local-files $THEME_OPTION -o "$OUTPUT_FILE"
+        $MARP_CMD "$TMP_SLIDES_PATH" --pdf --allow-local-files $THEME_OPTION -o "$OUTPUT_FILE"
         ;;
     pptx)
         if [ "$EDITABLE" = true ]; then
             echo "編集可能なPowerPointに変換しています..."
-            npx @marp-team/marp-cli@latest "$TMP_SLIDES_PATH" --pptx --pptx-editable --allow-local-files $THEME_OPTION -o "$OUTPUT_FILE"
+            $MARP_CMD "$TMP_SLIDES_PATH" --pptx --pptx-editable --allow-local-files $THEME_OPTION -o "$OUTPUT_FILE"
         else
             echo "PowerPointに変換しています..."
-            npx @marp-team/marp-cli@latest "$TMP_SLIDES_PATH" --pptx --allow-local-files $THEME_OPTION -o "$OUTPUT_FILE"
+            $MARP_CMD "$TMP_SLIDES_PATH" --pptx --allow-local-files $THEME_OPTION -o "$OUTPUT_FILE"
         fi
         ;;
     html)
         echo "HTMLに変換しています..."
-        npx @marp-team/marp-cli@latest "$TMP_SLIDES_PATH" --html --allow-local-files $THEME_OPTION -o "$OUTPUT_FILE"
+        $MARP_CMD "$TMP_SLIDES_PATH" --html --allow-local-files $THEME_OPTION -o "$OUTPUT_FILE"
         ;;
     *)
         echo "エラー: サポートされていないフォーマット: $FORMAT"

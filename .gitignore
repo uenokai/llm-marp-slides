@@ -175,3 +175,22 @@ cython_debug/
 
 # Node.js
 node_modules/
+package-lock.json
+
+# --- Marp / Project Specific ---
+# Final generated artifacts
+generated/*.pdf
+generated/*.pptx
+generated/*.html
+
+# Replicated assets (copied from source/images)
+generated/images/
+
+# Temporary files used by scripts
+generated/tmp_slides.md
+
+# Optional: AI-generated intermediate files (slides and theme)
+# If you want to manage these with Git, comment out the lines below
+# generated/slides.md
+# generated/theme.css
+# generated/draft.md
