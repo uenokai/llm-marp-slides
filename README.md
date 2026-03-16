@@ -1,0 +1,222 @@
+# Antigravity-Marp-Slides
+
+Antigravity（VS Code の AI コーディング支援拡張）を活用して、Markdown 形式のスライドを自動生成し、Marp でスライドを作成するシステムです。
+
+## 概要
+
+本プロジェクトは、**Antigravity（VS Code の AI コーディング支援拡張）を活用して、Markdown 形式のスライドを自動生成し、Marp でスライドを作成するシステム** を提供します。
+ユーザーは **自由なフォーマットでアウトライン（原稿）を作成** し、それを基に **Antigravity が Marp 用の Markdown を生成** し、最終的に Marp でスライドを出力します。
+
+## フォルダ構成
+
+```
+/project-root
+│── /source          # 人間が管理する原稿・画像
+│   │── outline.md   # スライドの原稿（編集する）
+│   │── images/      # スライドで使用する画像
+│       │── diagram.png
+│       │── logo.png
+│── /generated       # Antigravity が生成するスライド用 Markdown
+│   │── slides.md    # Marp 用の Markdown スライド（編集しない）
+│   │── theme.css    # Marp のカスタムテーマ
+│   │── draft.md     # 発表原稿（生成されたもの）
+│── /scripts         # 自動化スクリプト
+│   │── generate_slides.sh  # スライド生成スクリプト
+│   │── create_sample_images.py  # サンプル画像生成スクリプト
+│── /output          # 生成されたスライド（PDF, PPTX, HTML）
+│── /docs            # ドキュメント
+│   │── design.md    # 要件・設計書
+│── /.devcontainer   # VSCode Dev Containers設定
+│── README.md        # プロジェクトの説明
+│── Dockerfile       # Dockerイメージ定義
+│── docker-compose.yml # Docker Compose設定
+```
+
+## 使い方
+
+### 1. アウトラインの作成
+
+`source/outline.md` にスライドの原稿（アウトライン）を自由なフォーマットで作成します。
+
+### 2. Antigravityを使用してMarkdownを生成
+
+1. アウトラインからMarp用のMarkdownを生成します。Antigravityに以下のような指示を出します
+
+```
+このアウトラインを元に、Marp用のMarkdownスライドを生成してください。
+スライドには以下の要素を含めてください：
+- marpのヘッダー（marp: true, theme: default, paginate: true）
+- スライドの区切り（---）
+- 適切な見出しレベル（#, ##, ###）
+- 箇条書きリスト
+- コードブロック（必要に応じて）
+- 画像の挿入（../source/images/から相対パスで）
+
+【文章生成の厳格なルール】
+- 誇張表現やビジネス/コンサル用語による修飾は行わず、原文にある事実のみを記載すること。
+- 「です・ます」調は禁止し、体言止めやキーワード中心の極端に簡潔な箇条書きにすること。
+```
+
+2. 生成されたMarkdownを `generated/slides.md` に保存します
+
+### 3. 発表原稿（draft.md）の生成
+
+生成したスライドと元のアウトライン内容を結合させ、実際のプレゼン時に読み上げるための「発表原稿」を生成します。
+
+1. Antigravityに以下のような指示を出して原稿（draft.md）を作成させます：
+
+```
+source/outline.md と generated/slides.md を読み込んで内容を解釈し、プレゼンテーション本番で音声AIにそのまま読み上げさせる「発表原稿」を作成してください。
+出力は generated/draft.md に保存し、以下のルールを厳守してください：
+- generated/slides.md の各スライドごとに確実に対応させて作成すること
+- 各スライドの内容の前に必ず「## スライドX: タイトル」というMarkdownの見出しを入れること（Xは1からの連番、タイトルはスライドごとに適切なものを設定）
+- 見出しの直下には、「」などのカッコ類を一切含まない、純粋なセリフテキストのみを出力すること
+- 誇張した表現やビジネス/コンサル用語などは避け、事実ベースのシンプルな表現に留めること
+```
+
+2. スクリプトやAntigravityによって `generated/draft.md` ファイルが生成されます。
+
+### 4. スライドの生成
+
+`scripts/generate_slides.sh` を使用して、Markdownからスライドを生成します。
+
+```bash
+# PDFを生成
+./scripts/generate_slides.sh --format pdf --output presentation
+
+# 編集可能なPowerPointを生成（推奨）
+./scripts/generate_slides.sh --format pptx --output presentation --editable
+
+# 通常のPowerPointを生成
+./scripts/generate_slides.sh --format pptx --output presentation
+
+# HTMLを生成
+./scripts/generate_slides.sh --format html --output presentation
+```
+
+生成されたスライドは `output` ディレクトリに保存されます。
+
+### 編集可能なPowerPoint生成について
+
+Marp-cli v4.1.0以降では、`--editable`オプション（内部的には`--pptx-editable`）を使用して編集可能なPowerPointファイルを生成できます：
+
+- **編集可能なPPTX**: テキストや図形を直接PowerPointで編集可能
+- **通常のPPTX**: 画像として埋め込まれ、編集は制限される
+- **必要な依存関係**: LibreOfficeが必要
+
+#### LibreOfficeのインストール
+
+編集可能なPowerPointを生成するには、LibreOfficeが必要です：
+
+```bash
+# macOS
+brew install --cask libreoffice
+
+# Ubuntu/Debian
+sudo apt-get install libreoffice
+
+# CentOS/RHEL
+sudo yum install libreoffice
+```
+
+#### 使用例
+
+```bash
+# 編集可能なPowerPointを生成
+./scripts/generate_slides.sh --format pptx --output my_presentation --editable
+
+# 短縮形でも可能
+./scripts/generate_slides.sh -f pptx -o my_presentation -e
+```
+
+## カスタマイズ
+
+### テーマのカスタマイズ
+
+`generated/theme.css` を編集することで、スライドのデザインをカスタマイズできます。
+
+### 画像の追加
+
+スライドで使用する画像は `source/images/` ディレクトリに保存します。
+Markdownからは相対パスで参照します：
+
+```markdown
+![画像の説明](../source/images/diagram.png)
+```
+
+## 必要なツール
+
+### ローカル環境での実行
+- VS Code
+- Antigravity拡張機能
+- Marp CLI（`npm install -g @marp-team/marp-cli`）
+- Python 3.x（サンプル画像生成用）
+- Chromium/Chrome（PDF/PPTX生成用）
+- LibreOffice（編集可能なPPTX生成用、オプション）
+
+### Docker環境での実行
+- Docker
+- Docker Compose
+
+## Docker環境での使用方法
+
+Docker環境を使用すると、依存関係のインストールなしにMarpスライドの作成・編集が可能です。
+
+### 1. Dockerコンテナの起動
+
+```bash
+# コンテナをビルドして起動
+docker-compose up -d
+
+# コンテナ内でシェルを実行
+docker-compose exec app bash
+```
+
+### 2. スライドの生成
+
+コンテナ内で以下のコマンドを実行して、スライドを生成します：
+
+```bash
+# PDFを生成
+./scripts/generate_slides.sh --format pdf --output presentation
+
+# 編集可能なPowerPointを生成（推奨）
+./scripts/generate_slides.sh --format pptx --output presentation --editable
+
+# 通常のPowerPointを生成
+./scripts/generate_slides.sh --format pptx --output presentation
+
+# HTMLを生成
+./scripts/generate_slides.sh --format html --output presentation
+```
+
+生成されたスライドは `output` ディレクトリに保存され、ホストマシンからも確認できます。
+
+## VSCode Dev Containers での使用方法
+
+VSCode Dev Containersを使用すると、VSCode内でDockerコンテナを開発環境として使用できます。
+
+### 1. Dev Containerの起動
+
+1. VSCodeで「Remote-Containers: Reopen in Container」コマンドを実行
+2. コンテナ内のVSCode環境が自動的に設定され、以下の機能が利用可能になります：
+   - Marp for VSCode拡張機能によるプレビュー
+   - Markdown編集の強化機能
+   - ターミナルからの直接コマンド実行
+   - 自動フォーマット
+
+### 2. スライドの生成
+
+VSCode内のターミナルで以下のコマンドを実行します：
+
+```bash
+# 編集可能なPowerPointを生成（推奨）
+./scripts/generate_slides.sh --format pptx --output presentation --editable
+
+# HTMLを生成
+./scripts/generate_slides.sh --format html --output presentation
+```
+
+## ライセンス
+
+このプロジェクトはMITライセンスの下で公開されています。詳細は [LICENSE](LICENSE) ファイルを参照してください。

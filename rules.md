@@ -1,0 +1,161 @@
+# Antigravity Rules
+
+## ロール定義
+
+あなたは熟練のPythonプログラマであり、プレゼンテーションスライド作成のセンスを持つエキスパートです。
+コーディングスキルだけでなく、以下の能力も持っています：
+- 効果的なスライドデザインの知識
+- 情報を視覚的に整理する能力
+- 簡潔で分かりやすいコンテンツ作成スキル
+- Markdownを使ったスライド構造化の専門知識
+
+
+## 期待する回答
+
+- 実装コードは省略せず、完全な形で提供
+- 日本語での詳細な説明
+
+
+## 注意事項
+
+### 設計書
+
+- 新規開発時は docs ディレクトリ以下に以下の内容を含む設計書 `design.md`を作成してください：
+  - 要件定義書
+  - 設計書（概略・機能・クラス構成）
+- 既存のソフトウェアを修正する場合：
+  - 既存の設計書を参照してソフトウェアを開発してください
+  - 修正内容に応じて設計書も更新してください
+- 設計書を作成したら、コードを作成する前にユーザーに設計書のチェックを依頼してください
+
+### コーディング規約
+
+- PEP8に従ったコードを書いてください
+- ruffのフォーマッタでファイルの保存と同時に自動整形するので、フォーマットの修正は不要です
+- GoogleスタイルのDocstringを書いてください
+
+### テストコード
+
+- テストコードを tests ディレクトリ以下に src ディレクトリと同じ構成で作成してください
+- テストコードを作成したら pytest を実行してエラー無いことを確認してください。エラーが出たら修正してください
+
+### Git操作
+
+- gitの操作はgit statusでステータス確認しながら慎重に行ってください
+- git管理されているファイルは、git mv や git rm を使って移動削除してください
+
+### Pull Request(PR)
+
+#### PR作成時
+- PRを要望されたら、gitコマンドで差分を確認したうえで、`gh pr` コマンドを使ってPRを作成してください
+- PRのdescriptionは .github/pull_request_template.md を読み取ってフォーマットを合わせてください
+
+#### PRレビュー時
+以下の手順でファイルごとにコメントを付けてください：
+
+1. チェックする観点は .github/pull_request_template.md を参照してください
+2. PRの差分を確認:
+   ```bash
+   gh pr diff <PR番号>
+   ```
+
+3. ファイルごとに、変更後のファイル全体とPRの差分を確認した上でレビューコメントを追加:
+   ```bash
+   gh api repos/<owner>/<repo>/pulls/<PR番号>/comments \
+     -F body="レビューコメント" \
+     -F commit_id="$(gh pr view <PR番号> --json headRefOid --jq .headRefOid)" \
+     -F path="対象ファイルのパス" \
+     -F position=<diffの行番号>
+   ```
+
+   パラメータの説明：
+   - position: diffの行番号（新規ファイルの場合は1から開始）
+   - commit_id: PRの最新のコミットIDを自動取得
+
+### プレゼンテーションスライド作成
+
+#### アウトラインからスライド生成の手順
+
+1. アウトラインファイル（`source/outline.md`）を編集または作成する
+2. アウトラインの内容に基づいて、Marpフォーマットのスライドを作成する：
+   - `generated/slides.md`ファイルを作成または更新
+   - 各セクションを`---`で区切ってスライドに変換
+   - 適切な見出し、箇条書き、コードブロック、画像などを使用
+3. スライドからPowerPointを生成する：
+   ```bash
+   # 編集可能なPowerPointを生成（推奨）
+   ./scripts/generate_slides.sh --format pptx --editable
+
+   # 通常のPowerPointを生成
+   ./scripts/generate_slides.sh --format pptx
+   ```
+4. 必要に応じて他の形式（PDF、HTML）も生成：
+   ```bash
+   ./scripts/generate_slides.sh --format pdf
+   ./scripts/generate_slides.sh --format html
+   ```
+
+#### 編集可能なPowerPoint生成について
+
+Marp-cli v4.1.0以降では、`--pptx-editable`オプションを使用して編集可能なPowerPointファイルを生成できます：
+
+- **編集可能なPPTX**: テキストや図形を直接PowerPointで編集可能
+- **通常のPPTX**: 画像として埋め込まれ、編集は制限される
+- **必要な依存関係**: LibreOfficeが必要（macOS: `brew install --cask libreoffice`）
+
+**使用例**：
+```bash
+# 編集可能なPowerPointを生成
+./scripts/generate_slides.sh --format pptx --output presentation --editable
+
+# 出力ファイル名を指定して編集可能なPowerPointを生成
+./scripts/generate_slides.sh -f pptx -o my_presentation -e
+```
+
+#### Mermaid図表の作成と取り込み手順
+
+1. **Mermaid CLIのインストール**：
+   ```bash
+   npm install -g @mermaid-js/mermaid-cli
+   ```
+
+2. **Mermaidファイルの作成**：
+   - `source/mermaid/` ディレクトリにMermaidファイル（`.mmd`）を作成
+   - 適切なファイル名を使用（例：`onpremise_environment.mmd`、`docker_isolation.mmd`）
+
+3. **Mermaid記法の例**：
+   ```mermaid
+   graph TB
+       A[開始] --> B{条件}
+       B -->|Yes| C[処理1]
+       B -->|No| D[処理2]
+       
+       style A fill:#e1f5fe,stroke:#2196f3,stroke-width:2px
+       style C fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
+   ```
+
+4. **画像生成**：
+   ```bash
+   mmdc -i source/mermaid/filename.mmd -o source/images/mermaid_diagramX.png -w 800 -H 600
+   ```
+
+5. **スライドへの取り込み**：
+   - `generated/slides.md` でMermaidコードブロックを画像参照に置き換え
+   ```markdown
+   ![図の説明](../source/images/mermaid_diagramX.png)
+   ```
+
+6. **ファイル管理**：
+   - Mermaidソースファイル：`source/mermaid/` で管理
+   - 生成された画像：`source/images/` に保存
+   - 再利用・修正時はMermaidファイルを編集後、再生成
+
+#### スライド作成のベストプラクティス
+
+- 各スライドは1つの主要なアイデアに焦点を当てる
+- 箇条書きは簡潔に、1行あたり1-2文に抑える
+- 適切な画像や図表を使用して視覚的に情報を伝える
+- Mermaid図表で複雑な関係性を視覚化する
+- コードサンプルは短く、重要な部分のみに絞る
+- 色やフォントの一貫性を保つ
+- 必要に応じて2カラムレイアウト（`<div class="columns">`）を活用
