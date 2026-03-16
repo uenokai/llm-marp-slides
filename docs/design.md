@@ -80,16 +80,14 @@
 │   │── images/      # スライドで使用する画像
 │       │── diagram.png
 │       │── logo.png
-│── /generated       # Antigravity が生成するスライド用 Markdown
+│── /generated       # 生成物（スライド用Markdown・PDF等）の保存場所
 │   │── slides.md    # Marp 用の Markdown スライド（編集しない）
 │   │── theme.css    # Marp のカスタムテーマ
-│── /scripts         # 自動化スクリプト
-│   │── generate_slides.sh  # スライド生成スクリプト
-│   │── create_sample_images.py  # サンプル画像生成スクリプト
-│── /output          # 生成されたスライド（PDF, PPTX, HTML）
 │   │── presentation.pdf
 │   │── presentation.pptx
 │   │── presentation.html
+│── /scripts         # 自動化スクリプト
+│   │── generate_slides.sh  # スライド生成スクリプト
 │── /docs            # ドキュメント
 │   │── design.md    # 要件・設計書
 │── /.devcontainer   # VSCode Dev Containers設定
@@ -128,9 +126,8 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# 入力と出力のパス
 SLIDES_PATH="$PROJECT_ROOT/generated/slides.md"
-OUTPUT_DIR="$PROJECT_ROOT/output"
+OUTPUT_DIR="$PROJECT_ROOT/generated"
 THEME_PATH="$PROJECT_ROOT/generated/theme.css"
 
 # 出力ディレクトリに画像フォルダを作成し、画像をコピー

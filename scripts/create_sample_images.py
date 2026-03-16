@@ -262,7 +262,7 @@ def create_folder_diagram(output_path, width=800, height=500):
         font=file_font,
     )
 
-    # output フォルダ
+    # generated フォルダ（生成スライド保存先）
     draw.line(
         [(x_start + 10, y_start + 25), (x_start + 10, y_start + y_spacing * 10)],
         fill=(0, 0, 0),
@@ -278,12 +278,12 @@ def create_folder_diagram(output_path, width=800, height=500):
     )
     draw.text(
         (x_start + 40, y_start + y_spacing * 10),
-        "/output",
+        "/generated",
         fill=(0, 0, 150),
         font=folder_font,
     )
 
-    # output/presentation.pdf
+    # generated/presentation.pdf
     draw.line(
         [
             (x_start + 50, y_start + y_spacing * 10 + 25),

@@ -65,7 +65,7 @@ PROJECT_DIR="$PROJECT_ROOT"
 
 # 入力と出力のパス
 SLIDES_PATH="$PROJECT_DIR/generated/slides.md"
-OUTPUT_DIR="$PROJECT_DIR/output"
+OUTPUT_DIR="$PROJECT_DIR/generated"
 DEFAULT_THEME_PATH="$PROJECT_DIR/generated/theme.css"
 
 # テーマファイルの設定
