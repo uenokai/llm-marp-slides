@@ -1,0 +1,13 @@
+# Handle line endings
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# Force shell scripts to use LF (Linux line endings)
+# This prevents errors when running scripts inside Docker containers on Windows
+*.sh text eol=lf
+
+# Keep binary files as-is
+*.png binary
+*.jpg binary
+*.pdf binary
+*.pptx binary
